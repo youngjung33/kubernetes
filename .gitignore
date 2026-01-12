@@ -5,3 +5,10 @@ dist/
 data.json
 .env
 .DS_Store
+
+# Test coverage and results
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+junit.xml
