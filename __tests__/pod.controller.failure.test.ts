@@ -4,6 +4,7 @@ import { CreatePodUseCase } from '../src/application/use-cases/pod/CreatePodUseC
 import { GetPodUseCase } from '../src/application/use-cases/pod/GetPodUseCase';
 import { ListPodsUseCase } from '../src/application/use-cases/pod/ListPodsUseCase';
 import { DeletePodUseCase } from '../src/application/use-cases/pod/DeletePodUseCase';
+import { UpdatePodUseCase } from '../src/application/use-cases/pod/UpdatePodUseCase';
 
 /**
  * PodController 실패 케이스 테스트
@@ -15,6 +16,7 @@ describe('PodController - 실패 케이스', () => {
   let mockGetPodUseCase: jest.Mocked<GetPodUseCase>;
   let mockListPodsUseCase: jest.Mocked<ListPodsUseCase>;
   let mockDeletePodUseCase: jest.Mocked<DeletePodUseCase>;
+  let mockUpdatePodUseCase: jest.Mocked<UpdatePodUseCase>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
@@ -35,11 +37,16 @@ describe('PodController - 실패 케이스', () => {
       execute: jest.fn()
     } as any;
 
+    mockUpdatePodUseCase = {
+      execute: jest.fn()
+    } as any;
+
     podController = new PodController(
       mockCreatePodUseCase,
       mockGetPodUseCase,
       mockListPodsUseCase,
-      mockDeletePodUseCase
+      mockDeletePodUseCase,
+      mockUpdatePodUseCase
     );
 
     mockRequest = {};
@@ -264,6 +271,115 @@ spec:
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({ error: 'Delete failed' })
       );
+    });
+  });
+
+  // ============================================
+  // update - Pod 업데이트 실패 케이스
+  // ============================================
+  describe('update - 실패 케이스', () => {
+    it('잘못된 YAML 형식으로 Pod 업데이트 시도 시 400 에러 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'nginx-test' };
+      mockRequest.body = 'invalid: yaml: {';
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+    });
+
+    it('존재하지 않는 Pod 업데이트 시도 시 404 에러 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'non-existent-pod' };
+      mockRequest.body = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: non-existent-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+`;
+
+      mockUpdatePodUseCase.execute.mockRejectedValue(new Error('Pod not found'));
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Pod not found' })
+      );
+    });
+
+    it('UseCase에서 예외 발생 시 400 에러 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'nginx-test' };
+      mockRequest.body = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+`;
+
+      mockUpdatePodUseCase.execute.mockRejectedValue(new Error('Storage error'));
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: 'Storage error' })
+      );
+    });
+
+    it('null Pod로 업데이트 시도 시 400 에러 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'nginx-test' };
+      mockRequest.body = null;
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+    });
+
+    it('빈 네임스페이스로 Pod 업데이트 시도', async () => {
+      mockRequest.params = { namespace: '', name: 'nginx-test' };
+      mockRequest.body = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+`;
+
+      mockUpdatePodUseCase.execute.mockRejectedValue(new Error('Pod not found'));
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+    });
+
+    it('빈 이름으로 Pod 업데이트 시도', async () => {
+      mockRequest.params = { namespace: 'default', name: '' };
+      mockRequest.body = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+`;
+
+      mockUpdatePodUseCase.execute.mockRejectedValue(new Error('Pod not found'));
+
+      await podController.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
     });
   });
 });
