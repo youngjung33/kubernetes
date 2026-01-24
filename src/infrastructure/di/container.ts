@@ -8,6 +8,11 @@ import { GetPodUseCase } from '../../application/use-cases/pod/GetPodUseCase';
 import { ListPodsUseCase } from '../../application/use-cases/pod/ListPodsUseCase';
 import { DeletePodUseCase } from '../../application/use-cases/pod/DeletePodUseCase';
 import { UpdatePodUseCase } from '../../application/use-cases/pod/UpdatePodUseCase';
+import { CreateNodeUseCase } from '../../application/use-cases/node/CreateNodeUseCase';
+import { GetNodeUseCase } from '../../application/use-cases/node/GetNodeUseCase';
+import { ListNodesUseCase } from '../../application/use-cases/node/ListNodesUseCase';
+import { DeleteNodeUseCase } from '../../application/use-cases/node/DeleteNodeUseCase';
+import { UpdateNodeUseCase } from '../../application/use-cases/node/UpdateNodeUseCase';
 import { PodController } from '../../presentation/api/controllers/PodController';
 
 /**
@@ -34,6 +39,13 @@ export class Container {
   private listPodsUseCase = new ListPodsUseCase(this.podRepository);
   private deletePodUseCase = new DeletePodUseCase(this.podRepository);
   private updatePodUseCase = new UpdatePodUseCase(this.podRepository);
+
+  // Node Use Cases
+  private createNodeUseCase = new CreateNodeUseCase(this.nodeRepository);
+  private getNodeUseCase = new GetNodeUseCase(this.nodeRepository);
+  private listNodesUseCase = new ListNodesUseCase(this.nodeRepository);
+  private deleteNodeUseCase = new DeleteNodeUseCase(this.nodeRepository);
+  private updateNodeUseCase = new UpdateNodeUseCase(this.nodeRepository);
 
   /**
    * PodController 인스턴스 반환
@@ -88,5 +100,45 @@ export class Container {
    */
   getUpdatePodUseCase(): UpdatePodUseCase {
     return this.updatePodUseCase;
+  }
+
+  /**
+   * CreateNodeUseCase 인스턴스 반환
+   * @returns CreateNodeUseCase 인스턴스
+   */
+  getCreateNodeUseCase(): CreateNodeUseCase {
+    return this.createNodeUseCase;
+  }
+
+  /**
+   * GetNodeUseCase 인스턴스 반환
+   * @returns GetNodeUseCase 인스턴스
+   */
+  getGetNodeUseCase(): GetNodeUseCase {
+    return this.getNodeUseCase;
+  }
+
+  /**
+   * ListNodesUseCase 인스턴스 반환
+   * @returns ListNodesUseCase 인스턴스
+   */
+  getListNodesUseCase(): ListNodesUseCase {
+    return this.listNodesUseCase;
+  }
+
+  /**
+   * DeleteNodeUseCase 인스턴스 반환
+   * @returns DeleteNodeUseCase 인스턴스
+   */
+  getDeleteNodeUseCase(): DeleteNodeUseCase {
+    return this.deleteNodeUseCase;
+  }
+
+  /**
+   * UpdateNodeUseCase 인스턴스 반환
+   * @returns UpdateNodeUseCase 인스턴스
+   */
+  getUpdateNodeUseCase(): UpdateNodeUseCase {
+    return this.updateNodeUseCase;
   }
 }

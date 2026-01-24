@@ -25,6 +25,11 @@ export { GetPodUseCase } from './application/use-cases/pod/GetPodUseCase';
 export { ListPodsUseCase } from './application/use-cases/pod/ListPodsUseCase';
 export { DeletePodUseCase } from './application/use-cases/pod/DeletePodUseCase';
 export { UpdatePodUseCase } from './application/use-cases/pod/UpdatePodUseCase';
+export { CreateNodeUseCase } from './application/use-cases/node/CreateNodeUseCase';
+export { GetNodeUseCase } from './application/use-cases/node/GetNodeUseCase';
+export { ListNodesUseCase } from './application/use-cases/node/ListNodesUseCase';
+export { DeleteNodeUseCase } from './application/use-cases/node/DeleteNodeUseCase';
+export { UpdateNodeUseCase } from './application/use-cases/node/UpdateNodeUseCase';
 
 // Infrastructure
 export { Container } from './infrastructure/di/container';
