@@ -10,4 +10,5 @@ export interface IContainerRuntime {
   run(pod: Pod): Promise<ContainerStatus>;
   stop(containerId: string): Promise<void>;
   getStatus(containerId: string): Promise<ContainerStatus>;
+  getLogs(containerId: string): Promise<string>;
 }

@@ -5,6 +5,9 @@ import { GetPodUseCase } from '../src/application/use-cases/pod/GetPodUseCase';
 import { ListPodsUseCase } from '../src/application/use-cases/pod/ListPodsUseCase';
 import { DeletePodUseCase } from '../src/application/use-cases/pod/DeletePodUseCase';
 import { UpdatePodUseCase } from '../src/application/use-cases/pod/UpdatePodUseCase';
+import { GetPodStatusUseCase } from '../src/application/use-cases/pod/GetPodStatusUseCase';
+import { RestartPodUseCase } from '../src/application/use-cases/pod/RestartPodUseCase';
+import { GetPodLogsUseCase } from '../src/application/use-cases/pod/GetPodLogsUseCase';
 
 /**
  * PodController 실패 케이스 테스트
@@ -17,6 +20,9 @@ describe('PodController - 실패 케이스', () => {
   let mockListPodsUseCase: jest.Mocked<ListPodsUseCase>;
   let mockDeletePodUseCase: jest.Mocked<DeletePodUseCase>;
   let mockUpdatePodUseCase: jest.Mocked<UpdatePodUseCase>;
+  let mockGetPodStatusUseCase: jest.Mocked<GetPodStatusUseCase>;
+  let mockRestartPodUseCase: jest.Mocked<RestartPodUseCase>;
+  let mockGetPodLogsUseCase: jest.Mocked<GetPodLogsUseCase>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
@@ -41,12 +47,27 @@ describe('PodController - 실패 케이스', () => {
       execute: jest.fn()
     } as any;
 
+    mockGetPodStatusUseCase = {
+      execute: jest.fn()
+    } as any;
+
+    mockRestartPodUseCase = {
+      execute: jest.fn()
+    } as any;
+
+    mockGetPodLogsUseCase = {
+      execute: jest.fn()
+    } as any;
+
     podController = new PodController(
       mockCreatePodUseCase,
       mockGetPodUseCase,
       mockListPodsUseCase,
       mockDeletePodUseCase,
-      mockUpdatePodUseCase
+      mockUpdatePodUseCase,
+      mockGetPodStatusUseCase,
+      mockRestartPodUseCase,
+      mockGetPodLogsUseCase
     );
 
     mockRequest = {};
