@@ -13,4 +13,7 @@ export function setupPodRoutes(app: Express, podController: PodController): void
   app.get('/api/v1/pods/:namespace/:name', (req, res) => podController.get(req, res));
   app.put('/api/v1/pods/:namespace/:name', (req, res) => podController.update(req, res));
   app.delete('/api/v1/pods/:namespace/:name', (req, res) => podController.delete(req, res));
+  app.get('/api/v1/pods/:namespace/:name/status', (req, res) => podController.getStatus(req, res));
+  app.post('/api/v1/pods/:namespace/:name/restart', (req, res) => podController.restart(req, res));
+  app.get('/api/v1/pods/:namespace/:name/logs', (req, res) => podController.getLogs(req, res));
 }

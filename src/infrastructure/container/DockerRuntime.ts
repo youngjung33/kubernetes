@@ -75,4 +75,20 @@ export class DockerRuntime implements IContainerRuntime {
       running: info.State.Running || false
     };
   }
+
+  /**
+   * 컨테이너 로그 조회
+   * @param containerId - 조회할 컨테이너 ID
+   * @returns 컨테이너 로그 문자열
+   * @throws 컨테이너를 찾을 수 없거나 로그 조회 실패 시 예외 발생
+   */
+  async getLogs(containerId: string): Promise<string> {
+    const container = this.docker.getContainer(containerId);
+    const logs = await container.logs({
+      stdout: true,
+      stderr: true,
+      timestamps: false
+    });
+    return logs.toString('utf-8');
+  }
 }

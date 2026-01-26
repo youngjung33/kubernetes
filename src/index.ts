@@ -25,6 +25,9 @@ export { GetPodUseCase } from './application/use-cases/pod/GetPodUseCase';
 export { ListPodsUseCase } from './application/use-cases/pod/ListPodsUseCase';
 export { DeletePodUseCase } from './application/use-cases/pod/DeletePodUseCase';
 export { UpdatePodUseCase } from './application/use-cases/pod/UpdatePodUseCase';
+export { GetPodStatusUseCase } from './application/use-cases/pod/GetPodStatusUseCase';
+export { RestartPodUseCase } from './application/use-cases/pod/RestartPodUseCase';
+export { GetPodLogsUseCase } from './application/use-cases/pod/GetPodLogsUseCase';
 export { CreateNodeUseCase } from './application/use-cases/node/CreateNodeUseCase';
 export { GetNodeUseCase } from './application/use-cases/node/GetNodeUseCase';
 export { ListNodesUseCase } from './application/use-cases/node/ListNodesUseCase';
@@ -41,4 +44,6 @@ export { RoundRobinScheduler } from './infrastructure/scheduler/RoundRobinSchedu
 
 // Presentation
 export { PodController } from './presentation/api/controllers/PodController';
+export { NodeController } from './presentation/api/controllers/NodeController';
 export { setupPodRoutes } from './presentation/api/routes/pod.routes';
+export { setupNodeRoutes } from './presentation/api/routes/node.routes';
