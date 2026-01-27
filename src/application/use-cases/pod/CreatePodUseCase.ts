@@ -49,8 +49,10 @@ export class CreatePodUseCase {
     savedPod.spec.nodeName = selectedNode.metadata.name;
     await this.podRepository.update(savedPod);
 
-    // 5. 컨테이너 실행
-    await this.containerRuntime.run(savedPod);
+    // 5. 컨테이너 실행 후 containerId 저장
+    const containerStatus = await this.containerRuntime.run(savedPod);
+    savedPod.containerId = containerStatus.id;
+    await this.podRepository.update(savedPod);
 
     return savedPod;
   }

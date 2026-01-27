@@ -10,6 +10,7 @@ import { NodeController } from '../controllers/NodeController';
 export function setupNodeRoutes(app: Express, nodeController: NodeController): void {
   app.post('/api/v1/nodes', (req, res) => nodeController.create(req, res));
   app.get('/api/v1/nodes', (req, res) => nodeController.list(req, res));
+  app.get('/api/v1/nodes/:name/pods', (req, res) => nodeController.listPodsOnNode(req, res));
   app.get('/api/v1/nodes/:name', (req, res) => nodeController.get(req, res));
   app.put('/api/v1/nodes/:name', (req, res) => nodeController.update(req, res));
   app.delete('/api/v1/nodes/:name', (req, res) => nodeController.delete(req, res));

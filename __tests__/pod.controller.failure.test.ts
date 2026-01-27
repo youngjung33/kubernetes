@@ -232,7 +232,7 @@ spec:
 
       await podController.list(mockRequest as Request, mockResponse as Response);
 
-      expect(mockListPodsUseCase.execute).toHaveBeenCalledWith('default');
+      expect(mockListPodsUseCase.execute).toHaveBeenCalledWith('default', undefined);
     });
 
     it('UseCase에서 예외 발생 시 500 에러 반환', async () => {

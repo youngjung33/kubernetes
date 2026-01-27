@@ -46,6 +46,7 @@ export interface PodStatus {
 /**
  * Pod 엔티티
  * Kubernetes에서 실행되는 최소 단위로, 하나 이상의 컨테이너를 포함하는 그룹
+ * containerId는 CreatePod 시 run() 반환값으로 설정·저장되며, 상태/재시작/로그 조회에 사용
  */
 export class Pod {
   apiVersion: string = 'v1';
@@ -53,6 +54,8 @@ export class Pod {
   metadata: PodMetadata;
   spec: PodSpec;
   status?: PodStatus;
+  /** 컨테이너 런타임 ID (CreatePod 시 run() 반환값으로 설정, 저장됨) */
+  containerId?: string;
 
   /**
    * Pod 생성자

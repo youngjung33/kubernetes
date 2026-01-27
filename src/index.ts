@@ -11,7 +11,7 @@ export type { NodeMetadata, NodeSpec, NodeStatus } from './domain/entities/Node'
 export { PodPhase } from './domain/entities/Pod';
 
 // Domain Repositories (Interfaces)
-export type { IPodRepository } from './domain/repositories/IPodRepository';
+export type { IPodRepository, ListPodsOptions } from './domain/repositories/IPodRepository';
 export type { INodeRepository } from './domain/repositories/INodeRepository';
 
 // Domain Services (Interfaces)

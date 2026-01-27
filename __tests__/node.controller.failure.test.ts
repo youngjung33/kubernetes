@@ -5,6 +5,7 @@ import { GetNodeUseCase } from '../src/application/use-cases/node/GetNodeUseCase
 import { ListNodesUseCase } from '../src/application/use-cases/node/ListNodesUseCase';
 import { DeleteNodeUseCase } from '../src/application/use-cases/node/DeleteNodeUseCase';
 import { UpdateNodeUseCase } from '../src/application/use-cases/node/UpdateNodeUseCase';
+import { ListPodsUseCase } from '../src/application/use-cases/pod/ListPodsUseCase';
 
 /**
  * NodeController 실패 케이스 테스트
@@ -17,6 +18,7 @@ describe('NodeController - 실패 케이스', () => {
   let mockListNodesUseCase: jest.Mocked<ListNodesUseCase>;
   let mockDeleteNodeUseCase: jest.Mocked<DeleteNodeUseCase>;
   let mockUpdateNodeUseCase: jest.Mocked<UpdateNodeUseCase>;
+  let mockListPodsUseCase: jest.Mocked<ListPodsUseCase>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
@@ -41,12 +43,17 @@ describe('NodeController - 실패 케이스', () => {
       execute: jest.fn()
     } as any;
 
+    mockListPodsUseCase = {
+      execute: jest.fn()
+    } as any;
+
     nodeController = new NodeController(
       mockCreateNodeUseCase,
       mockGetNodeUseCase,
       mockListNodesUseCase,
       mockDeleteNodeUseCase,
-      mockUpdateNodeUseCase
+      mockUpdateNodeUseCase,
+      mockListPodsUseCase
     );
 
     mockRequest = {

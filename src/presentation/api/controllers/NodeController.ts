@@ -4,6 +4,7 @@ import { GetNodeUseCase } from '../../../application/use-cases/node/GetNodeUseCa
 import { ListNodesUseCase } from '../../../application/use-cases/node/ListNodesUseCase';
 import { DeleteNodeUseCase } from '../../../application/use-cases/node/DeleteNodeUseCase';
 import { UpdateNodeUseCase } from '../../../application/use-cases/node/UpdateNodeUseCase';
+import { ListPodsUseCase } from '../../../application/use-cases/pod/ListPodsUseCase';
 import { Node } from '../../../domain/entities/Node';
 import * as yaml from 'js-yaml';
 
@@ -20,14 +21,33 @@ export class NodeController {
    * @param listNodesUseCase - Node 목록 조회 유즈케이스
    * @param deleteNodeUseCase - Node 삭제 유즈케이스
    * @param updateNodeUseCase - Node 업데이트 유즈케이스
+   * @param listPodsUseCase - 해당 노드의 Pod 목록 조회용 (GET /nodes/:name/pods)
    */
   constructor(
     private createNodeUseCase: CreateNodeUseCase,
     private getNodeUseCase: GetNodeUseCase,
     private listNodesUseCase: ListNodesUseCase,
     private deleteNodeUseCase: DeleteNodeUseCase,
-    private updateNodeUseCase: UpdateNodeUseCase
+    private updateNodeUseCase: UpdateNodeUseCase,
+    private listPodsUseCase: ListPodsUseCase
   ) {}
+
+  /**
+   * 해당 노드에 스케줄된 Pod 목록 조회
+   * GET /api/v1/nodes/:name/pods
+   * @param req - Express 요청 객체 (params.name = 노드 이름)
+   * @param res - Express 응답 객체
+   */
+  async listPodsOnNode(req: Request, res: Response): Promise<void> {
+    try {
+      const { name } = req.params;
+      const namespace = (req.query.namespace as string) || undefined;
+      const pods = await this.listPodsUseCase.execute(namespace, { nodeName: name });
+      res.json(pods);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 
   /**
    * Node 생성 핸들러

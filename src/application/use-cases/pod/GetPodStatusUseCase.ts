@@ -36,8 +36,7 @@ export class GetPodStatusUseCase {
       throw new Error(`Pod ${name} not found in namespace ${namespace}`);
     }
 
-    // 컨테이너 ID 확인 (Pod의 metadata나 status에서 가져올 수 있음)
-    const containerId = (pod as any).containerId;
+    const containerId = pod.containerId;
     if (!containerId) {
       throw new Error(`Container ID not found for pod ${name}`);
     }

@@ -41,7 +41,7 @@ export class Container {
   );
   private getPodUseCase = new GetPodUseCase(this.podRepository);
   private listPodsUseCase = new ListPodsUseCase(this.podRepository);
-  private deletePodUseCase = new DeletePodUseCase(this.podRepository);
+  private deletePodUseCase = new DeletePodUseCase(this.podRepository, this.containerRuntime);
   private updatePodUseCase = new UpdatePodUseCase(this.podRepository);
   private getPodStatusUseCase = new GetPodStatusUseCase(this.podRepository, this.containerRuntime);
   private restartPodUseCase = new RestartPodUseCase(this.podRepository, this.containerRuntime);
@@ -83,7 +83,8 @@ export class Container {
       this.getNodeUseCase,
       this.listNodesUseCase,
       this.deleteNodeUseCase,
-      this.updateNodeUseCase
+      this.updateNodeUseCase,
+      this.listPodsUseCase
     );
   }
 

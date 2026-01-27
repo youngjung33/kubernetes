@@ -35,7 +35,7 @@ export class GetPodLogsUseCase {
     }
 
     // 컨테이너 ID 확인
-    const containerId = (pod as any).containerId;
+    const containerId = pod.containerId;
     if (!containerId) {
       throw new Error(`Container ID not found for pod ${name}`);
     }

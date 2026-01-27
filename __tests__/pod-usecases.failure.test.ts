@@ -9,6 +9,7 @@ import { IPodRepository } from '../src/domain/repositories/IPodRepository';
  */
 describe('Pod UseCases - 실패 케이스', () => {
   let mockPodRepository: jest.Mocked<IPodRepository>;
+  let mockContainerRuntime: { stop: jest.Mock };
   let getPodUseCase: GetPodUseCase;
   let listPodsUseCase: ListPodsUseCase;
   let deletePodUseCase: DeletePodUseCase;
@@ -21,10 +22,11 @@ describe('Pod UseCases - 실패 케이스', () => {
       update: jest.fn(),
       delete: jest.fn()
     } as any;
+    mockContainerRuntime = { stop: jest.fn().mockResolvedValue(undefined) };
 
     getPodUseCase = new GetPodUseCase(mockPodRepository);
     listPodsUseCase = new ListPodsUseCase(mockPodRepository);
-    deletePodUseCase = new DeletePodUseCase(mockPodRepository);
+    deletePodUseCase = new DeletePodUseCase(mockPodRepository, mockContainerRuntime as any);
   });
 
   // ============================================
@@ -72,7 +74,7 @@ describe('Pod UseCases - 실패 케이스', () => {
       const result = await listPodsUseCase.execute('');
 
       expect(result).toEqual([]);
-      expect(mockPodRepository.findAll).toHaveBeenCalledWith('');
+      expect(mockPodRepository.findAll).toHaveBeenCalledWith('', undefined);
     });
 
     it('undefined 네임스페이스로 조회 시도', async () => {
@@ -81,7 +83,7 @@ describe('Pod UseCases - 실패 케이스', () => {
       const result = await listPodsUseCase.execute(undefined);
 
       expect(result).toEqual([]);
-      expect(mockPodRepository.findAll).toHaveBeenCalledWith(undefined);
+      expect(mockPodRepository.findAll).toHaveBeenCalledWith(undefined, undefined);
     });
   });
 

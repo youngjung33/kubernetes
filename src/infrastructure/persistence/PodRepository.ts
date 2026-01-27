@@ -1,4 +1,4 @@
-import { IPodRepository } from '../../domain/repositories/IPodRepository';
+import { IPodRepository, ListPodsOptions } from '../../domain/repositories/IPodRepository';
 import { Pod } from '../../domain/entities/Pod';
 import { IStore } from '../../domain/services/IStore';
 
@@ -39,14 +39,26 @@ export class PodRepository implements IPodRepository {
   /**
    * Pod 목록 조회
    * @param namespace - 조회할 네임스페이스 (선택사항, 미지정 시 모든 네임스페이스)
+   * @param options - labelSelector, nodeName 필터 (선택사항)
    * @returns Pod 엔티티 배열
    */
-  async findAll(namespace?: string): Promise<Pod[]> {
+  async findAll(namespace?: string, options?: ListPodsOptions): Promise<Pod[]> {
     const prefix = namespace ? `pods/${namespace}/` : 'pods/';
     const data = this.store.list(prefix);
-    return Object.values(data).map(item => 
+    let list = Object.values(data).map(item =>
       Object.assign(new Pod(item.metadata, item.spec), item)
     );
+    if (options?.labelSelector && Object.keys(options.labelSelector).length > 0) {
+      const sel = options.labelSelector;
+      list = list.filter(p => {
+        const labels = p.metadata.labels || {};
+        return Object.entries(sel).every(([k, v]) => labels[k] === v);
+      });
+    }
+    if (options?.nodeName) {
+      list = list.filter(p => p.spec.nodeName === options.nodeName);
+    }
+    return list;
   }
 
   /**

@@ -38,7 +38,7 @@ export class RestartPodUseCase {
     }
 
     // 컨테이너 ID 확인
-    const containerId = (pod as any).containerId;
+    const containerId = pod.containerId;
     if (!containerId) {
       throw new Error(`Container ID not found for pod ${name}`);
     }
@@ -49,8 +49,7 @@ export class RestartPodUseCase {
     // 새로운 컨테이너 실행
     const newContainerStatus = await this.containerRuntime.run(pod);
 
-    // Pod 정보 업데이트
-    (pod as any).containerId = newContainerStatus.id;
+    pod.containerId = newContainerStatus.id;
     if (pod.status) {
       pod.status.phase = 'Running' as any;
       if (pod.status.containerStatuses) {

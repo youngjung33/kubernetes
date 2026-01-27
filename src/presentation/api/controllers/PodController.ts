@@ -1,5 +1,19 @@
 import { Request, Response } from 'express';
 import { CreatePodUseCase } from '../../../application/use-cases/pod/CreatePodUseCase';
+
+/** 쿼리 문자열 "k1=v1,k2=v2" 를 Record<string, string>으로 파싱 */
+function parseLabelSelector(s: string | undefined): Record<string, string> | undefined {
+  if (!s || typeof s !== 'string' || !s.trim()) return undefined;
+  const out: Record<string, string> = {};
+  for (const part of s.split(',')) {
+    const eq = part.trim().indexOf('=');
+    if (eq <= 0) continue;
+    const k = part.trim().slice(0, eq).trim();
+    const v = part.trim().slice(eq + 1).trim();
+    if (k && v) out[k] = v;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 import { GetPodUseCase } from '../../../application/use-cases/pod/GetPodUseCase';
 import { ListPodsUseCase } from '../../../application/use-cases/pod/ListPodsUseCase';
 import { DeletePodUseCase } from '../../../application/use-cases/pod/DeletePodUseCase';
@@ -77,14 +91,20 @@ export class PodController {
 
   /**
    * Pod 목록 조회 핸들러
-   * 네임스페이스별 또는 전체 Pod 목록을 조회
-   * @param req - Express 요청 객체 (query에 namespace 선택사항)
+   * query: namespace, labelSelector(예: app=web 또는 app=web,env=prod), node(노드 이름)
+   * @param req - Express 요청 객체
    * @param res - Express 응답 객체
    */
   async list(req: Request, res: Response): Promise<void> {
     try {
-      const namespace = req.query.namespace as string || 'default';
-      const pods = await this.listPodsUseCase.execute(namespace);
+      const namespace = (req.query.namespace as string) || 'default';
+      const labelSelector = parseLabelSelector(req.query.labelSelector as string);
+      const nodeName = (req.query.node as string) || undefined;
+      const options =
+        (labelSelector && Object.keys(labelSelector).length > 0) || nodeName
+          ? { labelSelector, nodeName }
+          : undefined;
+      const pods = await this.listPodsUseCase.execute(namespace, options);
       res.json(pods);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
