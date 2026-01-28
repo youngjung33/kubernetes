@@ -2,6 +2,7 @@ import express from 'express';
 import { Container } from './src/infrastructure/di/container';
 import { setupPodRoutes } from './src/presentation/api/routes/pod.routes';
 import { setupNodeRoutes } from './src/presentation/api/routes/node.routes';
+import { setupDeploymentRoutes } from './src/presentation/api/routes/deployment.routes';
 
 /**
  * Mini Kubernetes API Server
@@ -18,8 +19,10 @@ app.use(express.json());
 // Routes
 const podController = container.getPodController();
 const nodeController = container.getNodeController();
+const deploymentController = container.getDeploymentController();
 setupPodRoutes(app, podController);
 setupNodeRoutes(app, nodeController);
+setupDeploymentRoutes(app, deploymentController);
 
 /**
  * Health check 엔드포인트

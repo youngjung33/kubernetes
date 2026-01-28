@@ -1,6 +1,7 @@
 import { FileStore } from '../persistence/FileStore';
 import { PodRepository } from '../persistence/PodRepository';
 import { NodeRepository } from '../persistence/NodeRepository';
+import { DeploymentRepository } from '../persistence/DeploymentRepository';
 import { DockerRuntime } from '../container/DockerRuntime';
 import { RoundRobinScheduler } from '../scheduler/RoundRobinScheduler';
 import { CreatePodUseCase } from '../../application/use-cases/pod/CreatePodUseCase';
@@ -16,8 +17,14 @@ import { GetNodeUseCase } from '../../application/use-cases/node/GetNodeUseCase'
 import { ListNodesUseCase } from '../../application/use-cases/node/ListNodesUseCase';
 import { DeleteNodeUseCase } from '../../application/use-cases/node/DeleteNodeUseCase';
 import { UpdateNodeUseCase } from '../../application/use-cases/node/UpdateNodeUseCase';
+import { CreateDeploymentUseCase } from '../../application/use-cases/deployment/CreateDeploymentUseCase';
+import { GetDeploymentUseCase } from '../../application/use-cases/deployment/GetDeploymentUseCase';
+import { ListDeploymentsUseCase } from '../../application/use-cases/deployment/ListDeploymentsUseCase';
+import { DeleteDeploymentUseCase } from '../../application/use-cases/deployment/DeleteDeploymentUseCase';
+import { ReconcileDeploymentUseCase } from '../../application/use-cases/deployment/ReconcileDeploymentUseCase';
 import { PodController } from '../../presentation/api/controllers/PodController';
 import { NodeController } from '../../presentation/api/controllers/NodeController';
+import { DeploymentController } from '../../presentation/api/controllers/DeploymentController';
 
 /**
  * Container
@@ -29,6 +36,7 @@ export class Container {
   private store = new FileStore();
   private podRepository = new PodRepository(this.store);
   private nodeRepository = new NodeRepository(this.store);
+  private deploymentRepository = new DeploymentRepository(this.store);
   private containerRuntime = new DockerRuntime();
   private scheduler = new RoundRobinScheduler();
 
@@ -53,6 +61,21 @@ export class Container {
   private listNodesUseCase = new ListNodesUseCase(this.nodeRepository);
   private deleteNodeUseCase = new DeleteNodeUseCase(this.nodeRepository);
   private updateNodeUseCase = new UpdateNodeUseCase(this.nodeRepository);
+
+  private createDeploymentUseCase = new CreateDeploymentUseCase(this.deploymentRepository);
+  private getDeploymentUseCase = new GetDeploymentUseCase(this.deploymentRepository);
+  private listDeploymentsUseCase = new ListDeploymentsUseCase(this.deploymentRepository);
+  private deleteDeploymentUseCase = new DeleteDeploymentUseCase(
+    this.deploymentRepository,
+    this.podRepository,
+    this.deletePodUseCase
+  );
+  private reconcileDeploymentUseCase = new ReconcileDeploymentUseCase(
+    this.deploymentRepository,
+    this.podRepository,
+    this.createPodUseCase,
+    this.deletePodUseCase
+  );
 
   /**
    * PodController 인스턴스 반환
@@ -85,6 +108,16 @@ export class Container {
       this.deleteNodeUseCase,
       this.updateNodeUseCase,
       this.listPodsUseCase
+    );
+  }
+
+  getDeploymentController(): DeploymentController {
+    return new DeploymentController(
+      this.createDeploymentUseCase,
+      this.getDeploymentUseCase,
+      this.listDeploymentsUseCase,
+      this.deleteDeploymentUseCase,
+      this.reconcileDeploymentUseCase
     );
   }
 

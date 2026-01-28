@@ -1,7 +1,9 @@
 import { PodRepository } from '../src/infrastructure/persistence/PodRepository';
 import { NodeRepository } from '../src/infrastructure/persistence/NodeRepository';
+import { DeploymentRepository } from '../src/infrastructure/persistence/DeploymentRepository';
 import { Pod } from '../src/domain/entities/Pod';
 import { Node } from '../src/domain/entities/Node';
+import { Deployment } from '../src/domain/entities/Deployment';
 import { IStore } from '../src/domain/services/IStore';
 
 /**
@@ -211,6 +213,56 @@ describe('Repositories - 실패 케이스', () => {
       const result = await nodeRepository.findAll();
       
       expect(result).toBeDefined();
+    });
+  });
+
+  // ============================================
+  // DeploymentRepository 실패 케이스
+  // ============================================
+  describe('DeploymentRepository', () => {
+    let deploymentRepository: DeploymentRepository;
+    let mockStore: jest.Mocked<IStore>;
+
+    beforeEach(() => {
+      mockStore = {
+        put: jest.fn(),
+        get: jest.fn(),
+        list: jest.fn(),
+        delete: jest.fn()
+      } as any;
+      deploymentRepository = new DeploymentRepository(mockStore);
+    });
+
+    it('존재하지 않는 Deployment 조회 시 null 반환', async () => {
+      mockStore.get.mockReturnValue(undefined);
+
+      const result = await deploymentRepository.findById('default', 'non-existent');
+
+      expect(result).toBeNull();
+      expect(mockStore.get).toHaveBeenCalledWith('deployments/default/non-existent');
+    });
+
+    it('빈 이름으로 Deployment 조회 시도', async () => {
+      mockStore.get.mockReturnValue(undefined);
+
+      const result = await deploymentRepository.findById('default', '');
+
+      expect(result).toBeNull();
+      expect(mockStore.get).toHaveBeenCalledWith('deployments/default/');
+    });
+
+    it('list에서 일부 항목만 유효한 형식일 때 반환된 배열 길이 확인', async () => {
+      mockStore.list.mockReturnValue({
+        'deployments/default/d1': {
+          metadata: { name: 'd1', namespace: 'default' },
+          spec: { replicas: 1, selector: { matchLabels: {} }, template: { spec: { containers: [] } } }
+        }
+      });
+
+      const result = await deploymentRepository.findAll('default');
+
+      expect(result).toBeDefined();
+      expect(result.length).toBe(1);
     });
   });
 });
