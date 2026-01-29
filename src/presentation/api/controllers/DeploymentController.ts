@@ -4,6 +4,7 @@ import { GetDeploymentUseCase } from '../../../application/use-cases/deployment/
 import { ListDeploymentsUseCase } from '../../../application/use-cases/deployment/ListDeploymentsUseCase';
 import { DeleteDeploymentUseCase } from '../../../application/use-cases/deployment/DeleteDeploymentUseCase';
 import { ReconcileDeploymentUseCase } from '../../../application/use-cases/deployment/ReconcileDeploymentUseCase';
+import { UpdateDeploymentUseCase } from '../../../application/use-cases/deployment/UpdateDeploymentUseCase';
 import { Deployment } from '../../../domain/entities/Deployment';
 import * as yaml from 'js-yaml';
 
@@ -17,6 +18,7 @@ export class DeploymentController {
     private getDeploymentUseCase: GetDeploymentUseCase,
     private listDeploymentsUseCase: ListDeploymentsUseCase,
     private deleteDeploymentUseCase: DeleteDeploymentUseCase,
+    private updateDeploymentUseCase: UpdateDeploymentUseCase,
     private reconcileDeploymentUseCase: ReconcileDeploymentUseCase
   ) {}
 
@@ -59,6 +61,30 @@ export class DeploymentController {
       res.json(list);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  /** Deployment 수정 (YAML body, replicas/template 등) */
+  async update(req: Request, res: Response): Promise<void> {
+    try {
+      const { namespace, name } = req.params;
+      const data = yaml.load(req.body) as any;
+      if (!data?.spec) {
+        res.status(400).json({ error: 'spec is required' });
+        return;
+      }
+      const deployment = new Deployment(
+        { name, namespace: data.metadata?.namespace || namespace },
+        data.spec
+      );
+      const updated = await this.updateDeploymentUseCase.execute(namespace, name, deployment);
+      res.status(200).json(updated);
+    } catch (error: any) {
+      if (error.message?.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(400).json({ error: error.message });
+      }
     }
   }
 

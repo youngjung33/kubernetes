@@ -22,6 +22,7 @@ import { GetDeploymentUseCase } from '../../application/use-cases/deployment/Get
 import { ListDeploymentsUseCase } from '../../application/use-cases/deployment/ListDeploymentsUseCase';
 import { DeleteDeploymentUseCase } from '../../application/use-cases/deployment/DeleteDeploymentUseCase';
 import { ReconcileDeploymentUseCase } from '../../application/use-cases/deployment/ReconcileDeploymentUseCase';
+import { UpdateDeploymentUseCase } from '../../application/use-cases/deployment/UpdateDeploymentUseCase';
 import { PodController } from '../../presentation/api/controllers/PodController';
 import { NodeController } from '../../presentation/api/controllers/NodeController';
 import { DeploymentController } from '../../presentation/api/controllers/DeploymentController';
@@ -76,6 +77,7 @@ export class Container {
     this.createPodUseCase,
     this.deletePodUseCase
   );
+  private updateDeploymentUseCase = new UpdateDeploymentUseCase(this.deploymentRepository);
 
   /**
    * PodController 인스턴스 반환
@@ -117,6 +119,7 @@ export class Container {
       this.getDeploymentUseCase,
       this.listDeploymentsUseCase,
       this.deleteDeploymentUseCase,
+      this.updateDeploymentUseCase,
       this.reconcileDeploymentUseCase
     );
   }

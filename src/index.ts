@@ -41,6 +41,7 @@ export { GetDeploymentUseCase } from './application/use-cases/deployment/GetDepl
 export { ListDeploymentsUseCase } from './application/use-cases/deployment/ListDeploymentsUseCase';
 export { DeleteDeploymentUseCase } from './application/use-cases/deployment/DeleteDeploymentUseCase';
 export { ReconcileDeploymentUseCase } from './application/use-cases/deployment/ReconcileDeploymentUseCase';
+export { UpdateDeploymentUseCase } from './application/use-cases/deployment/UpdateDeploymentUseCase';
 
 // Infrastructure
 export { Container } from './infrastructure/di/container';

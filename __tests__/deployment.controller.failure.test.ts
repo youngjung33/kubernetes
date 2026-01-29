@@ -5,6 +5,7 @@ import { GetDeploymentUseCase } from '../src/application/use-cases/deployment/Ge
 import { ListDeploymentsUseCase } from '../src/application/use-cases/deployment/ListDeploymentsUseCase';
 import { DeleteDeploymentUseCase } from '../src/application/use-cases/deployment/DeleteDeploymentUseCase';
 import { ReconcileDeploymentUseCase } from '../src/application/use-cases/deployment/ReconcileDeploymentUseCase';
+import { UpdateDeploymentUseCase } from '../src/application/use-cases/deployment/UpdateDeploymentUseCase';
 
 /**
  * DeploymentController 실패 케이스 테스트
@@ -15,6 +16,7 @@ describe('DeploymentController - 실패 케이스', () => {
   let mockGet: jest.Mocked<GetDeploymentUseCase>;
   let mockList: jest.Mocked<ListDeploymentsUseCase>;
   let mockDelete: jest.Mocked<DeleteDeploymentUseCase>;
+  let mockUpdate: jest.Mocked<UpdateDeploymentUseCase>;
   let mockReconcile: jest.Mocked<ReconcileDeploymentUseCase>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
@@ -24,6 +26,7 @@ describe('DeploymentController - 실패 케이스', () => {
     mockGet = { execute: jest.fn() } as any;
     mockList = { execute: jest.fn() } as any;
     mockDelete = { execute: jest.fn() } as any;
+    mockUpdate = { execute: jest.fn() } as any;
     mockReconcile = { execute: jest.fn() } as any;
 
     controller = new DeploymentController(
@@ -31,6 +34,7 @@ describe('DeploymentController - 실패 케이스', () => {
       mockGet,
       mockList,
       mockDelete,
+      mockUpdate,
       mockReconcile
     );
 
@@ -97,6 +101,39 @@ describe('DeploymentController - 실패 케이스', () => {
       await controller.list(mockRequest as Request, mockResponse as Response);
 
       expect(mockResponse.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('update', () => {
+    it('spec 없으면 400 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'd' };
+      mockRequest.body = 'metadata:\n  name: d';
+
+      await controller.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'spec is required' }));
+      expect(mockUpdate.execute).not.toHaveBeenCalled();
+    });
+
+    it('Deployment 없으면 404 반환', async () => {
+      mockRequest.params = { namespace: 'default', name: 'missing' };
+      mockRequest.body = 'spec:\n  replicas: 2\n  selector:\n    matchLabels: {}\n  template:\n    spec:\n      containers: []';
+      mockUpdate.execute.mockRejectedValue(new Error('Deployment missing not found in namespace default'));
+
+      await controller.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+    });
+
+    it('UseCase 예외(not found) 시 404 반환', async () => {
+      mockRequest.params = { namespace: 'ns', name: 'n' };
+      mockRequest.body = 'spec:\n  replicas: 1\n  selector:\n    matchLabels: {}\n  template:\n    spec:\n      containers: []';
+      mockUpdate.execute.mockRejectedValue(new Error('Deployment n not found in namespace ns'));
+
+      await controller.update(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
     });
   });
 

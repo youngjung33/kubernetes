@@ -4,6 +4,7 @@ import { GetDeploymentUseCase } from '../src/application/use-cases/deployment/Ge
 import { ListDeploymentsUseCase } from '../src/application/use-cases/deployment/ListDeploymentsUseCase';
 import { ReconcileDeploymentUseCase } from '../src/application/use-cases/deployment/ReconcileDeploymentUseCase';
 import { DeleteDeploymentUseCase } from '../src/application/use-cases/deployment/DeleteDeploymentUseCase';
+import { UpdateDeploymentUseCase } from '../src/application/use-cases/deployment/UpdateDeploymentUseCase';
 import { IDeploymentRepository } from '../src/domain/repositories/IDeploymentRepository';
 import { IPodRepository } from '../src/domain/repositories/IPodRepository';
 import { CreatePodUseCase } from '../src/application/use-cases/pod/CreatePodUseCase';
@@ -116,6 +117,36 @@ describe('Deployment UseCases - 실패 케이스', () => {
       );
 
       await expect(useCase.execute('default', 'r')).rejects.toThrow('Pod list failed');
+    });
+  });
+
+  describe('UpdateDeploymentUseCase', () => {
+    it('Deployment가 없으면 예외 발생', async () => {
+      mockDeploymentRepository.findById.mockResolvedValue(null);
+      const deployment = new Deployment(
+        { name: 'u', namespace: 'default' },
+        { replicas: 2, selector: { matchLabels: {} }, template: { spec: { containers: [{ name: 'c', image: 'i' }] } } }
+      );
+      const useCase = new UpdateDeploymentUseCase(mockDeploymentRepository);
+
+      await expect(useCase.execute('default', 'u', deployment)).rejects.toThrow('not found');
+      expect(mockDeploymentRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('Repository update 예외 시 전파', async () => {
+      const existing = new Deployment(
+        { name: 'u', namespace: 'default' },
+        { replicas: 1, selector: { matchLabels: {} }, template: { spec: { containers: [] } } }
+      );
+      mockDeploymentRepository.findById.mockResolvedValue(existing as any);
+      mockDeploymentRepository.update.mockRejectedValue(new Error('Update failed'));
+      const deployment = new Deployment(
+        { name: 'u', namespace: 'default' },
+        { replicas: 2, selector: { matchLabels: {} }, template: { spec: { containers: [{ name: 'c', image: 'i' }] } } }
+      );
+      const useCase = new UpdateDeploymentUseCase(mockDeploymentRepository);
+
+      await expect(useCase.execute('default', 'u', deployment)).rejects.toThrow('Update failed');
     });
   });
 
